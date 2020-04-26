@@ -20,12 +20,12 @@ func NewNet(inputs int) *Net {
 }
 
 // AddLayout .
-func (net *Net) AddLayout(neurons int) {
+func (net *Net) AddLayout(neurons int, f ActivationFunc) {
 	if len(net.layouts) == 0 {
-		net.layouts = append(net.layouts, NewLayout(len(net.layouts), neurons, net.inputs, nil))
+		net.layouts = append(net.layouts, NewLayout(len(net.layouts), neurons, net.inputs, nil, f))
 		return
 	}
-	net.layouts = append(net.layouts, NewLayout(len(net.layouts), neurons, len(net.GetLastLayout().neurons), net.GetLastLayout()))
+	net.layouts = append(net.layouts, NewLayout(len(net.layouts), neurons, len(net.GetLastLayout().neurons), net.GetLastLayout(), f))
 }
 
 // Calculate .
@@ -45,9 +45,11 @@ func (net *Net) Calculate(input, out []float64) []float64 {
 
 // Print .
 func (net *Net) Print() {
+	fmt.Println("print weights...")
 	for _, lay := range net.layouts {
 		lay.Print()
 	}
+	fmt.Println("print finished")
 }
 
 // GetLastLayout .
@@ -62,7 +64,7 @@ func (net *Net) Test(inputSet, expectSet [][]float64) {
 	for i, input := range inputSet {
 		output = net.Calculate(input, output)
 		expect := expectSet[i]
-		fmt.Printf("input: %v, output: %v, expect: %v\n", input, output, expect)
+		fmt.Printf("input: %v, output: %v,\texpect: %v\n", input, output, expect)
 	}
 	fmt.Println("testing finished")
 }

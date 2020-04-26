@@ -1,18 +1,13 @@
 package main
 
 import (
-	"math/rand"
-	"time"
-
 	"github.com/nskforward/neural_network/nn"
 )
 
 func main() {
-	rand.Seed(time.Now().UnixNano())
-
 	net := nn.NewNet(2)
-	net.AddLayout(4)
-	net.AddLayout(1)
+	net.AddLayout(2, nn.FuncLeakyReLu())
+	net.AddLayout(1, nn.FuncLeakyReLu())
 
 	trainingSet := [][]float64{
 		[]float64{0, 0},

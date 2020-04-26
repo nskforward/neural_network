@@ -13,20 +13,6 @@ func copyArray(dst, src []float64) []float64 {
 	return dst
 }
 
-func fdx(x float64) float64 {
-	if x < 0 {
-		return 0.01
-	}
-	return 1
-}
-
-func fx(x float64) float64 {
-	if x < 0 {
-		return 0.01 * x
-	}
-	return x
-}
-
 func mse(actual, target []float64) float64 {
 	var sum float64
 	for i, n := range actual {
@@ -35,6 +21,12 @@ func mse(actual, target []float64) float64 {
 	return sum / float64(len(actual))
 }
 
-func randomWeight(min, max float64) float64 {
-	return min + rand.Float64()*(max-min)
+// RandomSimple .
+func RandomSimple() float64 {
+	return -0.5 + rand.Float64()
+}
+
+// RandomNormal .
+func RandomNormal() float64 {
+	return rand.NormFloat64() * 0.1
 }

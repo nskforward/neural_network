@@ -15,40 +15,51 @@ func TrainNetBP(net *Net, speed float64, precision float64, inputSet, expectSet 
 	attempts := 0
 	for {
 		i++
+		if attempts > 20 {
+			break
+		}
 		mse1 := trainEpochBP(net, speed, inputSet, expectSet)
+		fmt.Printf("#%d: %.12f\n", i, mse)
 		if mse1 == 0 {
-			if attempts == 10 {
-				fmt.Println("fail, learning speed too hight")
-				break
-			}
+			fmt.Printf("###### FAIL ######\nweight size too high\n")
 			net.ResetWeights()
+			i = 0
 			attempts++
 			continue
 		}
-		fmt.Printf("#%d: %f\n", i, mse)
 		if mse1 < precision {
-			fmt.Printf("training successfully finished with %d weight reset\n", attempts)
+			fmt.Printf("###### SUCCESS ######\n")
 			break
 		}
-		if mse1 > 0.2 && i > 100000 {
-			fmt.Println("fail, please correct speed or add more neurons")
-			break
+		if mse1 > 0.2 && i > 300000 {
+			fmt.Printf("###### FAIL ######\ntrainig too slow\n")
+			net.ResetWeights()
+			i = 0
+			attempts++
+			continue
 		}
 		if mse1 == mse {
-			fmt.Println("fail, please correct speed or add more neurons")
-			break
+			fmt.Printf("###### FAIL ######\ntraining has no progress\n")
+			net.ResetWeights()
+			i = 0
+			attempts++
+			continue
 		}
 		mse = mse1
 	}
+	fmt.Println("attempts:", attempts)
 }
 
 func trainEpochBP(net *Net, speed float64, inputSet, expectSet [][]float64) float64 {
-	var sum float64
+	var max float64 = 0
 	output := make([]float64, 8)
 	layer := net.GetLastLayout()
 	for i, input := range inputSet {
 		output = net.Calculate(input, output)
-		sum += mse(output, expectSet[i])
+		mse := mse(output, expectSet[i])
+		if mse > max {
+			max = mse
+		}
 		for j, o := range output {
 			edev := o - expectSet[i][j]
 			if !correctWeightsBP(layer.neurons[j], edev, speed) {
@@ -56,14 +67,14 @@ func trainEpochBP(net *Net, speed float64, inputSet, expectSet [][]float64) floa
 			}
 		}
 	}
-	return sum / float64(len(inputSet))
+	return max
 }
 
 func correctWeightsBP(n *Neuron, edev float64, speed float64) bool {
-	dw := edev * fdx(n.out)
+	dw := edev * n.Fdx()
 	for i, w := range n.weight {
 		n.weight[i] = w - n.input[i]*dw*speed
-		if n.weight[i] > 3 || n.weight[i] < -3 {
+		if n.weight[i] > 30 || n.weight[i] < -30 {
 			return false
 		}
 		if n.layout.prev != nil {

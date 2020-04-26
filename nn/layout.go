@@ -11,13 +11,13 @@ type Layout struct {
 }
 
 // NewLayout .
-func NewLayout(index, neurons, links int, prev *Layout) *Layout {
+func NewLayout(index, neurons, links int, prev *Layout, f ActivationFunc) *Layout {
 	lay := &Layout{
 		neurons: make([]*Neuron, neurons),
 		index:   index,
 	}
 	for i := range lay.neurons {
-		lay.neurons[i] = NewNeuron(i, index, links, lay)
+		lay.neurons[i] = NewNeuron(i, index, links, lay, f)
 	}
 	if prev != nil && prev.next == nil {
 		prev.next = lay
